@@ -1,0 +1,22 @@
+{
+  "name": "@secureflow/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/worker.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "@secureflow/risk": "workspace:*",
+    "@secureflow/scanners": "workspace:*",
+    "@secureflow/shared": "workspace:*",
+    "bullmq": "^5.28.2",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

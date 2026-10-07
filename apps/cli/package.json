@@ -1,0 +1,22 @@
+{
+  "name": "@secureflow/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "secureflow": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@secureflow/risk": "workspace:*",
+    "@secureflow/scanners": "workspace:*",
+    "@secureflow/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "secureflow",
+  "private": true,
+  "packageManager": "pnpm@9.15.5",
+  "scripts": {
+    "build": "pnpm -r build",
+    "db:push": "pnpm --filter @secureflow/api db:push",
+    "seed": "pnpm --filter @secureflow/api seed",
+    "dev": "pnpm --parallel --filter @secureflow/api --filter @secureflow/web dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
