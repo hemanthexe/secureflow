@@ -6,7 +6,28 @@ import { PrismaClient } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { evaluatePolicy } from '@secureflow/policy';
 import { securityScore } from '@secureflow/risk';
-import { toSarif, type ScanRequest } from '@secureflow/shared';
+import { toSarif, type Finding, type ScanRequest } from '@secureflow/shared';
+
+type PersistedFinding = {
+  fingerprint: string;
+  scanner: string;
+  ruleId: string;
+  title: string;
+  description: string;
+  severity: string;
+  file: string | null;
+  line: number | null;
+  evidence: string | null;
+};
+
+const toSharedFinding = (finding: PersistedFinding): Finding => ({
+  ...finding,
+  file: finding.file ?? '',
+  line: finding.line ?? 0,
+  evidence: finding.evidence ?? '',
+  scanner: finding.scanner as Finding['scanner'],
+  severity: finding.severity as Finding['severity'],
+});
 
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
@@ -51,16 +72,7 @@ app.get<{ Params: { id: string } }>('/scans/:id', async (request) => {
   if (!scan) throw app.httpErrors.notFound();
   return {
     ...scan,
-    policy: evaluatePolicy(
-      scan.findings.map((f) => ({
-        ...f,
-        file: f.file ?? '',
-        line: f.line ?? 0,
-        evidence: f.evidence ?? '',
-        scanner: f.scanner as never,
-        severity: f.severity as never,
-      })),
-    ),
+    policy: evaluatePolicy(scan.findings.map((f: PersistedFinding) => toSharedFinding(f))),
     score: scan.score,
   };
 });
@@ -71,16 +83,7 @@ app.get<{ Params: { id: string } }>('/scans/:id/sarif', async (request, reply) =
   });
   if (!scan) throw app.httpErrors.notFound();
   return reply.type('application/sarif+json').send(
-    toSarif(
-      scan.findings.map((f) => ({
-        ...f,
-        file: f.file ?? '',
-        line: f.line ?? 0,
-        evidence: f.evidence ?? '',
-        scanner: f.scanner as never,
-        severity: f.severity as never,
-      })),
-    ),
+    toSarif(scan.findings.map((f: PersistedFinding) => toSharedFinding(f))),
   );
 });
 app.get('/dashboard', async () => {
@@ -90,7 +93,7 @@ app.get('/dashboard', async () => {
     include: { findings: true },
   });
   return {
-    scans: scans.map((s) => ({
+    scans: scans.map((s: { id: string; status: string; score: number | null; findings: unknown[]; createdAt: Date }) => ({
       id: s.id,
       status: s.status,
       score: s.score,
